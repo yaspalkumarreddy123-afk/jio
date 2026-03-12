@@ -1,199 +1,139 @@
-Jenkins by KK FUNDA
-====================
-
-Explain the flow diagram : developer --> GitHub --> maven --> SonarQube --> Nexus --> Tomcat  --> mail
-
-
-Jenkins
-=======
-
-IQ] what is Jenkins?
-
--->Jenkins is an open source Continuous Integration[CI] tool, cross-platform tool, written in Java.
-
---> Kohsuke Kawaguchi is Creator of the Jenkins CI server in 2004
-
--->Initially, it was called Hudson, but in 2011 it was renamed to Jenkins
-
-
-Advantages  of Jenkins
-======================
---> It’s an open source tool with great community support.
-
---> Easy to install and It has a simple configuration through a web-based GUI, which speeds up the Job[deployment process]
-
---> It has around 1900+ plugins to ease your work. If a plugin does not exist, just code it up and share with the community (https://plugins.jenkins.io/).
-
---> Its built with Java and hence, it is portable on all major platforms.
-
---> Good documentation and enriched support articles/information available on internet which will help beginners to start easy.
-
-
-
-Continuous Integration[CI]:
-==========================
-
----> explain diagram 
-
-Continuous Integration (CI) is the process of automating the build and testing of code every time a team member commits changes to version control.
-
-(OR)
-
-Continuous Integration is a development practice where developers integrate their code into a shared remote repository frequently, preferably several times a day. Each integration is verified by an automated build (including test) to detect integration errors as quickly as possible.
-
-
-CI Advantages
--------------
---> Immediate bug detection
---> Less Merge Conflicts
---> Deploy an application at any given point
---> Improved Code Quality [Consistent Testing, Code Reviews]
---> Developers receive immediate feedback on their code changes, allowing them to address issues promptly.
-
-
-Continuous Delivery:
-====================
-every successful build that has passed all the relevant automated tests and quality gates can potentially be deployed in to production via fully automated one click process.
-
-diagram 
--------
-
-code done --> unit tests --> Integrate --> Acceptance Test ---> Deploy into production
-         AUTO           AUTO          AUTO                 MANUAL 
-
-NOTE: Once we get the approval from the client and the sign-off mail from the QA team then we are going   to deploy
-
-
-Continuous Deployment: 
+SonarQube installation
 ======================
 
-The practicing of automatically deploying every successful build directly into production without any manual steps knows as Continuous deployment.
+pls use github link
 
 
-code done --> unit tests --> Integrate --> Acceptance Test ---> Deploy into production
-         AUTO           AUTO          AUTO                 AUTO 
+Nexus installation
+==================
 
+pls use github link
 
+Installation of tomcat
+======================
 
+pls use github link
 
+Install jenkins
+===============
 
-
-
-
-
-IQ] Which one you are using continuous delivery or continuous deployment ?
-
-ANS: I involved in many projects so we are using continuous deployment in "IN-HOUSE PROJECTS"   
-     
-      EX: Company internal Project : HR, company website ---> 
-
-    Coming to continuous delivery , We used for "client (external) projects"
-
-     EX: jio, flipkart, amazon, etc
+pls use github link
 
 
 
+Automate all the tasks using jenkins
+=====================================
+
+How to create a job
+===================
+
+Jenkins DashBoard --> New item --> enter an item name(jio-dev) --> freestyle project --> ok --> general --> description --> scroll down --> source code management -->  select git(GitHub,bitbucket,gitlab) --> repository url --> After that we will get an error --> pls install git in jenkins server --> yum install git -y --> save --> click on configure for any updates --> 
 
 
 
-
-What Jenkins can do?
-
-
-• Integrate with many different Version Control Systems (GitHub, BitBucket , GitLab, ...)
-• Generate test reports (JUnit)
-• Push the builds to various artifact repositories[nexus/jfrog]
-• Deploys directly to production or test environments
-• Notify stakeholders of build status (Through Email/slack,etc)
+--> branches to build --> */development --> scroll down --> build -->add build --> Invoke maven toplevel targets ---> goals [clean package] --> save 
 
 
+--> for run the job click on job --> In left side click on buid now --> failed --> click on job --> console output --> Due maven not instaled uild is failing 
 
-List of popular Continuous Integration tools
-============================================
+--> check maven is installed or not in jenkins server 
 
-SNO     Product           Is Open Source?
-===========================================
-1       Jenkins              Yes  [community edition]
-2       Cloudbees Jenkins    No   [Enterprise edition] 
-2       Bamboo               No
-3       Cruise Control       Yes
-4       Travis CI            Yes and Paid also
-5       Circle CI            Yes and Paid also
-6       GitLab CI            Yes and Paid
-7       TeamCity             Yes and Paid
+  mvn -version
 
 
-NOTE: default port for jenkins: 8080
+IQ] Where we need to install maven in linux server or in the jenkins server itself ?
+
+ANS: If you go for linux server only one maven install is possible but in jenkins many versions possible so we are going to install in the jenkins server.
 
 
-Jenkins Installation
-====================
-prerequsite : JAVA, min: t2.medium
 
-JAVA Installation
------------------
+How to download maven in jenkins ?
+==================================
 
-step 1: launch an ec2 machine(t2.medium), connect to that machine
+go to jenkins dashboard --> manage jenkins --> tools -->scroll down --> add maven -->  maven 3.9.8 --> select version 3.9.8 --> add many versions --> save 
 
-step 2: switch to root user [sudo su - ]
+click on job --> configure --> scroll down --> build steps -->  select maven version --> save 
+
+--> again run the job --> It will success 
+
+
+/var/lib/jenkins/workspace/jio-dev/target/ --> warfile location
 
 
 
 
+SonarQube server integration
+============================
 
-JENKINS Installation
-====================
-
---> LTS[Long Term Support] ---> stable version without any issues.
---> search on google [ download jenkins ] --> LTS --> Redhat/fedora/centos
+take ip address of SonarQube server [http://3.110.105.157:9000/] --> go to GitHub repository --> select the correct branch [development] --> pom.xml --> edit the file --> in <properties> tag keep sonarqube server details 
 
 
-step 1: sudo su -
+--> go to job --> configure --> scroll down --> build [ clean package sonar:sonar ] --> save
 
-step 2: 
-
-yum install wget tree -y
+--> go and see the sonarqube server --> check the projects --> now build the job --> success.
 
 
 
 
-sudo wget -O /etc/yum.repos.d/jenkins.repo \
-    https://pkg.jenkins.io/redhat-stable/jenkins.repo
-sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
-sudo yum upgrade
-# Add required dependencies for the jenkins package
-sudo yum install fontconfig java-21-openjdk
-sudo yum install jenkins
-sudo systemctl daemon-reload
+
+Nexus integration with jenkins
+===============================
+
+step 1: connect to maven server, Where java projects are available
+
+step 2: where to keep our repository details?
+
+update the details in pom.xml
+
+          <distributionManagement>
+
+            <repository>
+              <id>nexus</id>
+              <name>KK FUNDA Releases Nexus Repository</name>
+              <url>http://13.204.46.151:8081/repository/jio-release/</url>
+            </repository>
+
+            <snapshotRepository>
+              <id>nexus</id>
+              <name>KK FUNDA Snapshot Nexus Repository </name>
+              <url>http://13.204.46.151:8081/repository/jio-snapshot/</url>
+            </snapshotRepository>
+
+        </distributionManagement>
+
+step 3: Where we need to keep nexus credentials?
+
+--> In SonarQube we updated credentials in pom.xml
 
 
+NOTE: maven is installed in jenkins pls check correct path of settings.xml
 
 
-step 3: 
+find / -name settings.xml
 
- systemctl enable jenkins
+--> In nexus, repo details in pom.xml and credentials in 
+ cd /var/lib/jenkins/tools/hudson.tasks.Maven_MavenInstallation/maven_3.9.9/conf/
 
-step 4: 
 
-  systemctl status jenkins
-  systemctl start jenkins
-  systemctl status jenkins
+   <server>
+      <id>nexus</id>
+      <username>admin</username>
+      <password>password</password>
+    </server>
 
-step 5: 
 
-http://13.201.93.75:8080/  --> please make sure to enable 8080 port 
+--> click on job --> configure --> build --> clean deploy sonar:sonar --> save build now 
 
-cat /var/lib/jenkins/secrets/initialAdminPassword
 
-step 6:
+tomcat integration
+===================
 
-click on suggested plugins
+step 1: install "deploy to container" plugin
 
-step 7:
+step 2: goto post build actions ---> deploy war/ear container 
+   
+        **/maven-web-application.war
+      
+        Containers --> add containers --> tomcat 9 --> URL , add credentials
 
-user_name:  kkfunda
-password: kkfunda
-confirm password: kkfunda
-Full Name: KK FUNDA
-
-save And Continue  --> Save and finish --> start using jenkins 
+step 3: build now
